@@ -2,6 +2,8 @@
 
 A fully-featured web-based terminal using Python/FastAPI backend with real-time WebSocket communication and xterm.js frontend.
 
+![WebTerm UI](assets/webterm-ui.png)
+
 ## Features
 
 - **Full Terminal Emulation**: Complete terminal experience with xterm.js
