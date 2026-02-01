@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +8,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css">
     <link rel="stylesheet" href="/static/css/terminal.css">
 </head>
+
 <body>
     <div id="terminal-container">
         <header id="header-bar">
             <button id="explorer-toggle" class="header-btn" title="Toggle File Explorer">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764a1.5 1.5 0 0 1 1.06.44l.74.74H13.5A1.5 1.5 0 0 1 15 4.5v8a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9zM2.5 3a.5.5 0 0 0-.5.5V6h12V4.5a.5.5 0 0 0-.5-.5H6.64a.5.5 0 0 1-.354-.147l-.94-.94A.5.5 0 0 0 5.264 3H2.5zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7z"/>
+                    <path
+                        d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764a1.5 1.5 0 0 1 1.06.44l.74.74H13.5A1.5 1.5 0 0 1 15 4.5v8a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9zM2.5 3a.5.5 0 0 0-.5.5V6h12V4.5a.5.5 0 0 0-.5-.5H6.64a.5.5 0 0 1-.354-.147l-.94-.94A.5.5 0 0 0 5.264 3H2.5zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7z" />
                 </svg>
             </button>
             <span class="title">WebTerm</span>
@@ -22,15 +25,8 @@
                 <span id="mem-usage" title="Click for details" class="clickable">MEM: --</span>
                 <span id="gpu-usage" title="GPU Usage" style="display: none;">GPU: --</span>
             </div>
-            <div class="theme-selector">
-                <select id="theme-select" title="Select Theme">
-                    <option value="catppuccin-mocha">Catppuccin Mocha</option>
-                    <option value="catppuccin-latte">Catppuccin Latte</option>
-                    <option value="dracula">Dracula</option>
-                    <option value="nord">Nord</option>
-                    <option value="tokyo-night">Tokyo Night</option>
-                </select>
-            </div>
+
+
         </header>
         <div id="main-content">
             <!-- File Explorer Sidebar -->
@@ -39,7 +35,8 @@
                     <div class="explorer-nav">
                         <button id="back-btn" class="explorer-btn" title="Go Back" disabled>
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                                <path fill-rule="evenodd"
+                                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
                             </svg>
                         </button>
                         <span class="explorer-title">Files</span>
@@ -47,14 +44,18 @@
                     <div class="explorer-actions">
                         <button id="upload-btn" class="explorer-btn" title="Upload File">
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                                <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                                <path
+                                    d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                                <path
+                                    d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
                             </svg>
                         </button>
                         <button id="refresh-btn" class="explorer-btn" title="Refresh">
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
-                                <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+                                <path
+                                    d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
+                                <path fill-rule="evenodd"
+                                    d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
                             </svg>
                         </button>
                     </div>
@@ -66,8 +67,10 @@
                 <div id="drop-zone" class="drop-zone hidden">
                     <div class="drop-zone-content">
                         <svg width="48" height="48" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                            <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                            <path
+                                d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                            <path
+                                d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
                         </svg>
                         <span>Drop files here</span>
                     </div>
@@ -78,7 +81,13 @@
         <footer id="footer-bar">
             <span id="connection-status">Connecting...</span>
             <div class="footer-spacer"></div>
-            <span class="footer-hint">Copy: Ctrl+Shift+C | Paste: Ctrl+Shift+V</span>
+            <button id="settings-btn" class="footer-btn" title="Settings">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                    <path
+                        d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.86z" />
+                </svg>
+                <span>Settings</span>
+            </button>
         </footer>
         <!-- Picture-in-Picture Stats Panel -->
         <div id="stats-pip" class="hidden">
@@ -109,11 +118,81 @@
                 </div>
             </div>
         </div>
+
+        <!-- Toast Container -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <!-- Command Palette -->
+        <div id="command-palette-overlay" class="modal-overlay hidden">
+            <div class="command-palette">
+                <div class="command-palette-input-wrapper">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="command-icon">
+                        <path fill-rule="evenodd"
+                            d="M12.854 1.146a.5.5 0 0 1 0 .708L5.707 9 2.5 5.793a.5.5 0 0 1 .707-.707l3.207 3.207 7.147-7.146a.5.5 0 0 1 .708 0zm-2 2a.5.5 0 0 0 0 .708l2.854 2.854a.5.5 0 0 0 .708-.708L11.56.5a.5.5 0 0 0-.708.708l2 2z" />
+                        <path
+                            d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z" />
+                    </svg>
+                    <input type="text" id="command-input" placeholder="Type a command..." autocomplete="off">
+                </div>
+                <div id="command-list" class="command-list">
+                    <!-- Commands will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button class="modal-close" id="settings-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label for="theme-select">Theme</label>
+                        <select id="theme-select">
+                            <option value="catppuccin-mocha">Catppuccin Mocha</option>
+                            <option value="catppuccin-latte">Catppuccin Latte</option>
+                            <option value="dracula">Dracula</option>
+                            <option value="nord">Nord</option>
+                            <option value="tokyo-night">Tokyo Night</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="setting-font-size">Font Size</label>
+                        <input type="number" id="setting-font-size" min="8" max="32" value="14">
+                    </div>
+                    <div class="setting-group">
+                        <label for="setting-cursor-style">Cursor Style</label>
+                        <select id="setting-cursor-style">
+                            <option value="block">Block</option>
+                            <option value="underline">Underline</option>
+                            <option value="bar">Bar</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="setting-cursor-blink">
+                            Cursor Blink
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="settings-save" class="btn primary">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">Connecting to WebTerm...</div>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.9.0/lib/xterm-addon-web-links.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-clipboard@0.1.0/lib/xterm-addon-clipboard.min.js"></script>
     <script src="/static/js/terminal.js"></script>
 </body>
+
 </html>

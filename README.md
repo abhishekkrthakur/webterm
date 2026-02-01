@@ -19,7 +19,7 @@ A fully-featured web-based terminal using Python/FastAPI backend with real-time 
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/webterm.git
+git clone https://github.com/abhishekkrthakur/webterm.git
 cd webterm
 
 # Install dependencies

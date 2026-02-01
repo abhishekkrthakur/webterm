@@ -195,6 +195,200 @@ const themeCssVars = {
     },
 };
 
+/**
+ * Toast Notification Manager
+ */
+class ToastManager {
+    constructor() {
+        this.container = document.getElementById('toast-container');
+    }
+
+    show(message, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+
+        // Icon based on type
+        let icon = '';
+        switch (type) {
+            case 'success': icon = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>'; break;
+            case 'error': icon = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>'; break;
+            case 'warning': icon = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>'; break;
+            default: icon = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>';
+        }
+
+        toast.innerHTML = `${icon}<span>${message}</span>`;
+        this.container.appendChild(toast);
+
+        // Remove after duration
+        setTimeout(() => {
+            toast.classList.add('hiding');
+            toast.addEventListener('animationend', () => {
+                toast.remove();
+            });
+        }, duration);
+    }
+
+    success(message) { this.show(message, 'success'); }
+    error(message) { this.show(message, 'error', 4000); }
+    info(message) { this.show(message, 'info'); }
+    warning(message) { this.show(message, 'warning'); }
+}
+
+/**
+ * Command Palette
+ */
+class CommandPalette {
+    constructor(terminalApp) {
+        this.app = terminalApp;
+        this.overlay = document.getElementById('command-palette-overlay');
+        this.input = document.getElementById('command-input');
+        this.list = document.getElementById('command-list');
+        this.isHidden = true;
+        this.selectedIndex = 0;
+        this.commands = [
+            { id: 'toggle-explorer', name: 'Toggle File Explorer', action: () => this.app.toggleExplorer() },
+            { id: 'open-settings', name: 'Open Settings', action: () => this.app.openSettings() },
+            { id: 'reload-terminal', name: 'Reload Terminal', action: () => window.location.reload() },
+            { id: 'clear-terminal', name: 'Clear Terminal', action: () => this.app.terminal.clear() },
+            { id: 'upload-file', name: 'Upload File', action: () => this.app.fileInput.click() },
+            { id: 'toggle-pip', name: 'Toggle System Monitor', action: () => this.app.togglePip() },
+            {
+                id: 'copy-selection', name: 'Copy Selection', action: () => {
+                    const selection = this.app.terminal.getSelection();
+                    if (selection) {
+                        navigator.clipboard.writeText(selection)
+                            .then(() => this.app.toast.success('Copied to clipboard'))
+                            .catch(() => this.app.toast.error('Failed to copy'));
+                    } else {
+                        this.app.toast.info('No selection to copy');
+                    }
+                }
+            },
+        ];
+
+        this.initEvents();
+    }
+
+    initEvents() {
+        // Toggle on Ctrl+Shift+P or Cmd+Shift+P
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'p') {
+                e.preventDefault();
+                this.toggle();
+            }
+            // Close on Escape
+            if (e.key === 'Escape' && !this.isHidden) {
+                this.hide();
+            }
+            // Navigation
+            if (!this.isHidden) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    this.selectNext();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    this.selectPrev();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.executeSelected();
+                }
+            }
+        });
+
+        // Close on click outside
+        this.overlay.addEventListener('click', (e) => {
+            if (e.target === this.overlay) this.hide();
+        });
+
+        // Filter commands
+        this.input.addEventListener('input', () => this.renderList());
+    }
+
+    toggle() {
+        if (this.isHidden) this.show(); else this.hide();
+    }
+
+    show() {
+        this.isHidden = false;
+        this.overlay.classList.remove('hidden');
+        this.input.value = '';
+        this.input.focus();
+        this.renderList();
+    }
+
+    hide() {
+        this.isHidden = true;
+        this.overlay.classList.add('hidden');
+        this.app.terminal.focus();
+    }
+
+    renderList() {
+        const query = this.input.value.toLowerCase();
+        const matches = this.commands.filter(cmd => cmd.name.toLowerCase().includes(query));
+
+        this.list.innerHTML = matches.map((cmd, index) => `
+            <div class="command-item ${index === 0 ? 'selected' : ''}" data-index="${index}">
+                <span>${cmd.name}</span>
+                ${index < 9 ? `<span class="command-shortcut">↵</span>` : ''}
+            </div>
+        `).join('');
+
+        this.selectedIndex = 0;
+
+        // Add click handlers
+        this.list.querySelectorAll('.command-item').forEach((item, index) => {
+            item.addEventListener('click', () => {
+                matches[index].action();
+                this.hide();
+            });
+            item.addEventListener('mouseenter', () => {
+                this.selectedIndex = index;
+                this.updateSelection();
+            });
+        });
+    }
+
+    updateSelection() {
+        const items = this.list.querySelectorAll('.command-item');
+        items.forEach((item, index) => {
+            if (index === this.selectedIndex) item.classList.add('selected');
+            else item.classList.remove('selected');
+        });
+
+        // Scroll into view
+        const selected = items[this.selectedIndex];
+        if (selected) {
+            selected.scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    selectNext() {
+        const count = this.list.children.length;
+        if (count === 0) return;
+        this.selectedIndex = (this.selectedIndex + 1) % count;
+        this.updateSelection();
+    }
+
+    selectPrev() {
+        const count = this.list.children.length;
+        if (count === 0) return;
+        this.selectedIndex = (this.selectedIndex - 1 + count) % count;
+        this.updateSelection();
+    }
+
+    executeSelected() {
+        const query = this.input.value.toLowerCase();
+        const matches = this.commands.filter(cmd => cmd.name.toLowerCase().includes(query));
+        if (matches[this.selectedIndex]) {
+            matches[this.selectedIndex].action();
+            this.hide();
+        }
+    }
+}
+
+/**
+ * WebTerminal Main Class
+ */
 class WebTerminal {
     constructor() {
         this.terminal = null;
@@ -204,12 +398,37 @@ class WebTerminal {
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 10;
         this.reconnectDelay = 1000;
+        this.isConnected = false;
+
+        // Components
+        this.toast = new ToastManager();
+        this.commandPalette = null;
+
+        // UI Elements
         this.statusElement = document.getElementById('connection-status');
         this.cpuElement = document.getElementById('cpu-usage');
         this.memElement = document.getElementById('mem-usage');
         this.gpuElement = document.getElementById('gpu-usage');
         this.themeSelect = document.getElementById('theme-select');
+        this.loadingOverlay = document.getElementById('loading-overlay');
+
+        // Settings
+        this.settingsModal = document.getElementById('settings-modal');
+        this.settingsBtn = document.getElementById('settings-btn');
+        this.settingsClose = document.getElementById('settings-close');
+        this.settingsSave = document.getElementById('settings-save');
+        this.settingFontSize = document.getElementById('setting-font-size');
+        this.settingCursorStyle = document.getElementById('setting-cursor-style');
+        this.settingCursorBlink = document.getElementById('setting-cursor-blink');
+
+        // State
         this.currentTheme = localStorage.getItem('webterm-theme') || 'catppuccin-mocha';
+        const savedSettings = localStorage.getItem('webterm-settings');
+        this.settings = savedSettings ? JSON.parse(savedSettings) : {
+            fontSize: 14,
+            cursorStyle: 'block',
+            cursorBlink: true
+        };
 
         // PiP panel elements
         this.pipPanel = document.getElementById('stats-pip');
@@ -237,17 +456,17 @@ class WebTerminal {
     }
 
     init() {
-        // Set initial theme in selector
-        this.themeSelect.value = this.currentTheme;
+        // Apply Settings Logic
+        this.initSettings();
 
-        // Initialize terminal with saved theme
+        // Initialize terminal with saved settings
         this.terminal = new Terminal({
             theme: themes[this.currentTheme],
             fontFamily: "'Menlo', 'Monaco', 'Consolas', monospace",
-            fontSize: 14,
+            fontSize: this.settings.fontSize,
             lineHeight: 1.2,
-            cursorBlink: true,
-            cursorStyle: 'block',
+            cursorBlink: this.settings.cursorBlink,
+            cursorStyle: this.settings.cursorStyle,
             scrollback: 10000,
             convertEol: true,
             allowProposedApi: true,
@@ -255,6 +474,7 @@ class WebTerminal {
 
         // Apply CSS variables for current theme
         this.applyCssTheme(this.currentTheme);
+        this.themeSelect.value = this.currentTheme;
 
         // Initialize addons
         this.fitAddon = new FitAddon.FitAddon();
@@ -273,6 +493,9 @@ class WebTerminal {
         const container = document.getElementById('terminal');
         this.terminal.open(container);
         this.fitAddon.fit();
+
+        // Initialize Command Palette
+        this.commandPalette = new CommandPalette(this);
 
         // Set up clipboard support with keyboard shortcuts
         this.setupClipboard();
@@ -306,6 +529,45 @@ class WebTerminal {
 
         // Connect to WebSocket
         this.connect();
+    }
+
+    initSettings() {
+        // Populate inputs
+        this.settingFontSize.value = this.settings.fontSize;
+        this.settingCursorStyle.value = this.settings.cursorStyle;
+        this.settingCursorBlink.checked = this.settings.cursorBlink;
+        this.themeSelect.value = this.currentTheme;
+
+        // Events
+        this.settingsBtn.addEventListener('click', () => this.openSettings());
+        this.settingsClose.addEventListener('click', () => this.settingsModal.classList.add('hidden'));
+        this.settingsModal.addEventListener('click', (e) => {
+            if (e.target === this.settingsModal) this.settingsModal.classList.add('hidden');
+        });
+
+        this.settingsSave.addEventListener('click', () => {
+            this.settings.fontSize = parseInt(this.settingFontSize.value);
+            this.settings.cursorStyle = this.settingCursorStyle.value;
+            this.settings.cursorBlink = this.settingCursorBlink.checked;
+
+            // Save
+            localStorage.setItem('webterm-settings', JSON.stringify(this.settings));
+
+            // Apply
+            this.terminal.options.fontSize = this.settings.fontSize;
+            this.terminal.options.cursorStyle = this.settings.cursorStyle;
+            this.terminal.options.cursorBlink = this.settings.cursorBlink;
+
+            // Refit
+            this.fitAddon.fit();
+
+            this.settingsModal.classList.add('hidden');
+            this.toast.success('Settings saved');
+        });
+    }
+
+    openSettings() {
+        this.settingsModal.classList.remove('hidden');
     }
 
     togglePip() {
@@ -371,9 +633,12 @@ class WebTerminal {
                 if (event.type === 'keydown') {
                     const selection = this.terminal.getSelection();
                     if (selection) {
-                        navigator.clipboard.writeText(selection).catch(err => {
-                            console.error('Failed to copy:', err);
-                        });
+                        navigator.clipboard.writeText(selection)
+                            .then(() => this.toast.success('Copied to clipboard'))
+                            .catch(err => {
+                                console.error('Failed to copy:', err);
+                                this.toast.error('Failed to copy to clipboard');
+                            });
                     }
                 }
                 return false; // Prevent default
@@ -386,6 +651,7 @@ class WebTerminal {
                         this.send({ type: 'input', data: text });
                     }).catch(err => {
                         console.error('Failed to paste:', err);
+                        this.toast.error('Failed to read from clipboard');
                     });
                 }
                 return false; // Prevent default
@@ -401,16 +667,14 @@ class WebTerminal {
             const selection = this.terminal.getSelection();
             if (selection) {
                 // If there's a selection, copy it
-                navigator.clipboard.writeText(selection).catch(err => {
-                    console.error('Failed to copy:', err);
-                });
+                navigator.clipboard.writeText(selection)
+                    .then(() => this.toast.success('Copied to clipboard'))
+                    .catch(err => this.toast.error('Failed to copy'));
             } else {
                 // If no selection, paste
                 navigator.clipboard.readText().then(text => {
                     this.send({ type: 'input', data: text });
-                }).catch(err => {
-                    console.error('Failed to paste:', err);
-                });
+                }).catch(err => this.toast.error('Failed to paste'));
             }
         });
     }
@@ -453,7 +717,10 @@ class WebTerminal {
 
         this.socket.onopen = () => {
             this.reconnectAttempts = 0;
+            this.isConnected = true;
             this.setStatus('connected', 'Connected');
+            this.loadingOverlay.classList.add('hidden');
+
             // Send initial resize
             const { rows, cols } = this.terminal;
             this.send({ type: 'resize', rows: rows, cols: cols });
@@ -467,11 +734,10 @@ class WebTerminal {
                     this.terminal.write(message.data);
                 } else if (message.type === 'error') {
                     console.error('Server error:', message.message);
-                    this.terminal.write(`\r\n\x1b[31m[Error: ${message.message}]\x1b[0m\r\n`);
+                    this.toast.error(message.message);
                 } else if (message.type === 'stats') {
                     this.updateStats(message);
                 } else if (message.type === 'cwd') {
-                    // Received current working directory from terminal
                     this.loadDirectory(message.path);
                 }
             } catch (e) {
@@ -480,12 +746,14 @@ class WebTerminal {
         };
 
         this.socket.onclose = () => {
+            this.isConnected = false;
             this.setStatus('disconnected', 'Disconnected');
             this.attemptReconnect();
         };
 
         this.socket.onerror = (error) => {
             console.error('WebSocket error:', error);
+            this.isConnected = false;
         };
     }
 
@@ -578,6 +846,7 @@ class WebTerminal {
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
             this.setStatus('disconnected', 'Connection failed');
             this.terminal.write('\r\n\x1b[31m[Connection failed. Please refresh the page.]\x1b[0m\r\n');
+            this.toast.error('Connection failed permanently. Please reload.');
             return;
         }
 
@@ -585,6 +854,11 @@ class WebTerminal {
         const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
         this.setStatus('connecting', `Reconnecting (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
+
+        // Show loading overlay only on significant disconnects
+        if (this.reconnectAttempts > 1) {
+            this.loadingOverlay.classList.remove('hidden');
+        }
 
         setTimeout(() => {
             if (this.socket.readyState === WebSocket.CLOSED) {
@@ -702,6 +976,7 @@ class WebTerminal {
         } catch (error) {
             console.error('Failed to load directory:', error);
             this.fileList.innerHTML = `<div class="file-item" style="color: var(--ctp-red);">Error: ${error.message}</div>`;
+            this.toast.error(`Error loading files: ${error.message}`);
         }
     }
 
@@ -799,42 +1074,41 @@ class WebTerminal {
         const url = `/api/files/download?path=${encodeURIComponent(path)}`;
         const link = document.createElement('a');
         link.href = url;
-        link.download = '';
+        link.download = path.split('/').pop();
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        this.toast.success(`Downloading ${link.download}...`);
     }
 
-    async uploadFiles(files) {
-        for (const file of files) {
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-
-                const response = await fetch(`/api/files/upload?path=${encodeURIComponent(this.currentPath)}`, {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.detail || 'Upload failed');
-                }
-
-                console.log(`Uploaded: ${file.name}`);
-            } catch (error) {
-                console.error(`Failed to upload ${file.name}:`, error);
-                alert(`Failed to upload ${file.name}: ${error.message}`);
-            }
+    uploadFiles(files) {
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
         }
+        formData.append('path', this.currentPath);
 
-        // Refresh file list after upload
-        this.loadDirectory(this.currentPath);
+        this.toast.info('Uploading files...');
+
+        fetch('/api/files/upload', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Upload failed');
+                return response.json();
+            })
+            .then(data => {
+                this.toast.success(`Successfully uploaded ${files.length} file(s)`);
+                this.loadDirectory(this.currentPath);
+            })
+            .catch(error => {
+                console.error('Error uploading:', error);
+                this.toast.error('Failed to upload files');
+            });
     }
 }
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    const webterm = new WebTerminal();
-    webterm.init();
-});
+// Initialize terminal app
+const terminalApp = new WebTerminal();
+terminalApp.init();
