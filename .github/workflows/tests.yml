@@ -38,13 +38,13 @@ jobs:
 
     - name: Run tests
       run: |
-        uv run pytest src/nyrag/tests/ -v --tb=short
+        uv run pytest tests/ -v --tb=short
 
     - name: Run tests with coverage
       if: matrix.python-version == '3.10' && matrix.os == 'ubuntu-latest'
       run: |
         uv pip install pytest-cov
-        uv run pytest src/nyrag/tests/ --cov=src/nyrag --cov-report=xml --cov-report=term
+        uv run pytest tests/ --cov=src/webterm --cov-report=xml --cov-report=term
 
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.10' && matrix.os == 'ubuntu-latest'
