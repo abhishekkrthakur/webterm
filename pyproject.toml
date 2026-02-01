@@ -89,6 +89,11 @@ addopts = "-v --tb=short"
 
 [dependency-groups]
 dev = [
+    "black==26.1.0",
+    "isort==7.0.0",
+    "flake8==7.3.0",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
+    "pytest-asyncio>=0.24.0",
+    "httpx>=0.27.0",
 ]
