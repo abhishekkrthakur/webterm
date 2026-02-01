@@ -1,7 +1,6 @@
 pythonenv3.10/
 pythonenv3.8/
 *.db
-uv.lock
 .DS_Store
 
 # data files
