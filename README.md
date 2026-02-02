@@ -85,6 +85,54 @@ webterm
 # Users will need to enter the token to access the terminal
 ```
 
+## Secure Usage with Tailscale
+
+For secure remote access to WebTerm, we recommend using [Tailscale](https://tailscale.com/), a zero-config VPN that creates a secure network between your devices.
+
+Tailscale provides end-to-end encrypted access without exposing your terminal to the public internet. There are two recommended approaches:
+
+### Option 1: Bind to Tailscale IP Address
+
+Find your machine's Tailscale IP address and bind WebTerm directly to it:
+
+```bash
+# Find your Tailscale IP
+tailscale ip -4
+
+# Bind WebTerm to your Tailscale IP (e.g., 100.x.y.z)
+webterm --host 100.x.y.z --port 8000
+
+# With authentication (recommended)
+export WEBTERM_TOKEN="your-secret-token"
+webterm --host 100.x.y.z --port 8000
+```
+
+### Option 2: Use Tailscale Serve
+
+Bind WebTerm to localhost and use Tailscale's serve feature to expose it on your tailnet:
+
+```bash
+# Start WebTerm on localhost
+export WEBTERM_TOKEN="your-secret-token"
+webterm --host 127.0.0.1 --port 8000
+
+# In another terminal, expose it via Tailscale (runs in background)
+tailscale serve --bg 8000
+```
+
+This creates a secure HTTPS endpoint accessible only to devices on your tailnet.
+
+### Access Requirements
+
+**Important**: With either approach, clients must be connected to the same Tailscale network (tailnet) to access WebTerm. This ensures that only your authorized devices can reach the terminal.
+
+**Benefits of using Tailscale:**
+- End-to-end encryption
+- No firewall configuration needed
+- Access from any device on your tailnet
+- No public internet exposure
+- Built-in access controls and audit logs
+
 ## Configuration
 
 WebTerm can be configured via environment variables (prefix: `WEBTERM_`):
